@@ -22,25 +22,29 @@ for (let i = 0; i < 20; i++) {
 //when button clicked, make border silver and bigger
 const buttonAll = document.querySelectorAll(".button")
 buttonAll.forEach(button => button.addEventListener("click", buttonClick));
-
+buttonAll.forEach(button =>button.addEventListener("transitionend", removeTransition))
 function buttonClick(e) {
     //console.log(this.id);
     //console.log(this.classList[1]);
 
     clickData = [this.id,this.classList[1]]
     if (clickData[1] =="orange") {
-        orange(clickData[0])
+        orange(clickData[0], this)
     }
     if (clickData[1] =="blue") {
-        blue(clickData[0])
+        blue(clickData[0],this)
     }
     if (clickData[1]=="green") {
-        green(clickData[0])
+        green(clickData[0],this)
     }
     e.stopPropagation();
-    checkState();    
+    checkState();
+    display();    
     console.table(state,operator,a,b,storedAns)
         //displayLogic(this) 
+}
+function removeTransition(e) {
+    this.classList.remove("click")
 }
 //logic time
 function checkState() {
@@ -71,13 +75,14 @@ function checkState() {
         state = 3;
     } */
 }
-function orange(id) {
+function orange(id, button) {
+    button.classList.add("click")
     if (id == "=" && state > 2) {
         solveFactory(id);
         state = 0;
-        operator = id;
+        //operator = id;
         a = storedAns;
-        storedAns = null;
+        //storedAns = null;
         return;
     }
     switch (state) {
@@ -102,12 +107,34 @@ function orange(id) {
             break;
     }
 }
-function blue(id) {
+function blue(id,button) {
+    button.classList.add("click")
+
     if (id == "C") {
         restart();
     }
+    if (id == "+/-") {
+        if (state <3) {
+            a *= (-1)
+        }
+        else {
+            b *= (-1)
+        }
+    }
 }
-function green(id) {
+function green(id,button) {
+    if (button.id == ".") {
+        if (state == 0) {
+            a = "0."
+        }
+        if (isDecimal) {
+            return;
+        }
+        else {
+            isDecimal = true;
+        }
+    }
+    button.classList.add("click")
     switch(state) {
         case 0:
             a = id;
@@ -155,9 +182,11 @@ function green(id) {
             
     }       
 }
+var isDecimal = false;
 var loopCount = 0;
 var displayValue = 0;
 var state = 0;
+
 var storedAns = null;
 var a = 0;
 var b = null;
@@ -173,19 +202,48 @@ function restart() {
 
 function solveFactory(id) {
     //solve and set variables    
-    a = `${operate(parseInt(a),parseInt(b),operator)}`;
+    a = `${operate(parseFloat(a),parseFloat(b),operator)}`;
     storedAns =a;
     console.log(a);
     b = null;
+    if (a.includes(".")) {
+        isDecimal = true;
+    }
+    else {
+        isDecimal = false;
+    }
     loopCount +=1
     if (id == "=") {
         operator = "";
     }
 }
 
-function display(str) {
+function roundNumber(a){
+    return Math.round(a *10)/10;
+}
+function display() {
     const disContainer = document.querySelector(".display")
-    disContainer.textContent = str;
+    if (a== ".") {
+        displayA = "0."
+    }
+    else {
+        displayA = roundNumber(a)
+    }
+    if (b == ".") {
+        displayB = "0."
+    }
+    else {
+        displayB = roundNumber(b)
+    }
+
+    if (state < 3) {
+        disContainer.textContent=displayA;
+    }
+    else {
+        disContainer.textContent=displayB;
+    }
+
+    
 }
 function add(a, b) {
     return a+b;
@@ -194,10 +252,16 @@ function subtract(a, b) {
     return a-b;
 }
 function multiply(a, b) {
-    return a-b;
+    return a*b;
 }
 function divide(a,b) {
-    return a-b;
+    if (b==0) {
+        console.log("Test");
+        
+        restart();
+        return 0;
+    }
+    return a/b;
 }
 function operate(a,b, operator) {
     const operations ={
@@ -206,7 +270,6 @@ function operate(a,b, operator) {
         "*": multiply(a, b),
         "/": divide(a, b),
     }
-    console.log(operations[operator])
     return operations[operator];
     //accepts operator and 2 numbers
 }

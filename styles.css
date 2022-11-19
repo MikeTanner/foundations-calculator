@@ -38,12 +38,29 @@ html {
 }
 
 .blue {
+    transition: all .1s ease-in;
     background-color: aqua;
 }
-
+.blue.click {
+    transition: all .3s ease;
+    background-color: aliceblue;
+    border: 6px solid white;
+}
 .orange {
+    transition: all .1s ease-in;
     background-color: orange;
 }
+.orange.click {
+    transition: all .3s ease;
+    background-color:lightsalmon;
+    border: 6px solid white;
+}
 .green {
+    transition: all .1s ease-in;    
     background-color: green;
+}
+.green.click {
+    transition: all .3s ease;
+    background-color:lightgreen;
+    border: 6px solid white;
 }
